@@ -1,0 +1,54 @@
+<h1>What is your mood?</h1>
+<p>(Note: you must allow geolocation in order to post your mood)</p>
+
+<script>
+  if ("geolocation" in navigator) {
+    console.log("Geolocation is available")
+    navigator.geolocation.getCurrentPosition(position => {
+      //console.log("HERE")
+      {
+        {
+          console.log(position)
+          console.log("latitude: ", position.coords.latitude)
+          console.log("longitude: ", position.coords.longitude)--
+        }
+      }
+
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      document.getElementById("lit").textContent = latitude;
+      document.getElementById("lon").textContent = longitude;
+    });
+  } else {
+    console.log('geolocation IS NOT available')
+  }
+</script>
+
+<form action=`/log/create/${latitude}/${longitude}` method='POST'>
+  <div>
+    <label for="mood">What is your mood?</label>
+    <input type="number" name="mood">
+  </div>
+  <div>
+    <label for="productivity">How productive do you think you were today?</label>
+    <input type="number" name="productivity">
+  </div>
+  <div>
+    <label for="journal">journal:</label>
+    <input type="text" name="journal" rows="6" cols="50" maxLength="500">
+  </div>
+  <div>
+    <label for="privateJournal">privateJournal:</label>
+    <input type="checkbox" name="privateJournal">
+  </div>
+  <div>
+    <label for="hideCreator">hideCreator:</label>
+    <input type="checkbox" name="hideCreator">
+  </div>
+  <input name="latitude" type="number" id="lat">
+  <input name="longitude" type="number" id="lon">
+  <h1 id="lit"></h1>
+  {{!-- <input type="hidden" value=`${latitude}` name="latitude">
+  <input type="hidden" value=`${longitude}` name="longitude"> --}}
+  <button>Log It</button>
+</form>
