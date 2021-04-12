@@ -172,8 +172,7 @@ router.post('/create', auth, async (req, res, next) => {
       month
     } = req.body.info;
 
-    var ip = req.header['x-forwarded-for'] || req.connection.remoteAddress;
-
+    var ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
     if(!ip) ip = '100.44.178.190';
 
     let latitude;
@@ -183,7 +182,7 @@ router.post('/create', auth, async (req, res, next) => {
       `http://api.ipstack.com/${ip}?access_key=${process.env.IPACCESSKEY}&format=1`
     );
 
-
+      console.log("ADDRESS", address.data)
 
     latitude = address.data.latitude;
     longitude = address.data.longitude;
