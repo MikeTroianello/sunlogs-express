@@ -8,8 +8,14 @@ const hbs = require('hbs');
 const mongoose = require('mongoose');
 const logger = require('morgan');
 const path = require('path');
-
 const cors = require('cors');
+
+
+
+
+const app = express();
+
+app.use(cors());
 
 // WHEN INTRODUCING USERS DO THIS:
 // INSTALL THESE DEPENDENCIES: passport-local, passport, bcryptjs, express-session
@@ -44,7 +50,7 @@ const debug = require('debug')(
   `${app_name}:${path.basename(__filename).split('.')[0]}`
 );
 
-const app = express();
+
 
 // Middleware Setup
 app.use(logger('dev'));
@@ -92,22 +98,24 @@ app.locals.title = 'Express - Generated with IronGenerator';
 //   })
 // );
 
-app.use(
-  cors({
-    credentials: true,
-    origin: ['http://localhost:3000'] // <== this will be the URL of our React app (it will be running on port 3000)
-  })
-);
+
 
 // ROUTES MIDDLEWARE STARTS HERE:
 
-// app.use('/api', index);
-const log = require('./routes/log');
-app.use('/api/log', log);
-const authRoutes = require('./routes/auth-routes');
-app.use('/api', authRoutes);
+
+// const index = require('./routes/index');
 // const newLog = require('./routes/newLog');
+const log = require('./routes/log');
+const authRoutes = require('./routes/auth-routes');
+
+// app.use('/api', index);
 // app.use('/api/newLog', newLog);
+app.use('/api/log', log);
+app.use('/api', authRoutes);
+
+app.get('/', (req, res) => {
+  res.json({msg: "SUCCESS"})
+})
 
 app.use((req, res, next) => {
   // If no routes match, send them the React HTML.

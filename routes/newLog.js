@@ -26,7 +26,7 @@ router.post('/create', async (req, res, next) => {
     } = req.body.info;
 
     // var ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
-    console.log('LOGGING!!!! user', ip);
+   
 
     let latitude;
     let longitude;
@@ -34,8 +34,6 @@ router.post('/create', async (req, res, next) => {
     const address = await axios.get(
       `http://api.ipstack.com/${ip}?access_key=${process.env.IPACCESSKEY}&format=1`
     );
-
-    console.log('ADDRESS IS:', address);
 
     latitude = address.data.latitude;
     longitude = address.data.longitude;
@@ -54,7 +52,7 @@ router.post('/create', async (req, res, next) => {
       code: weather.data.weather[0].id,
       icon: weather.data.weather[0].icon
     };
-    console.log('WEATHER STUFF', weatherStuff);
+
     countAddress(weatherStuff);
 
     const weatherType = weatherStuff.type;
@@ -78,7 +76,7 @@ router.post('/create', async (req, res, next) => {
       county: fullAddress.data.address.adminName2,
       state: fullAddress.data.address.adminName1,
       hideCreator: hideCreator,
-      creatorId: req.user._id,
+      creatorId: req.user.id,
       dayOfWeek: dayOfWeek,
       month: month,
       dayOfMonth: dayOfMonth,
