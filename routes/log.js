@@ -267,7 +267,7 @@ router.post('/create-mobile', async (req, res, next) => {
     let { latitude, longitude } = location.coords;
 
     let fullAddress = await axios.get(
-      `http://api.geonames.org/findNearestAddressJSON?lat=${latitude}&lng=${longitude}&username=${process.env.GEO_NAME}`
+      `https://secure.geonames.org/findNearestAddressJSON?lat=${latitude}&lng=${longitude}&username=${process.env.GEO_NAME}`
     );
 
 
