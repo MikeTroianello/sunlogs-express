@@ -189,7 +189,7 @@ router.post('/create', auth, async (req, res, next) => {
     longitude = address.data.longitude;
 
     let fullAddress = await axios.get(
-      `http://api.geonames.org/findNearestAddressJSON?lat=${latitude}&lng=${longitude}&username=${process.env.GEO_NAME}`
+      `https://secure.geonames.org/findNearestAddressJSON?lat=${latitude}&lng=${longitude}&username=${process.env.GEO_NAME}`
     );
 
     let weather = await axios.get(
@@ -249,6 +249,7 @@ router.post('/create', auth, async (req, res, next) => {
 });
 
 router.post('/create-mobile', async (req, res, next) => {
+  try{
   if (req.isAuthenticated()) {
     const {
       mood,
@@ -321,6 +322,8 @@ router.post('/create-mobile', async (req, res, next) => {
       .catch((err) => {
         res.send(err);
       });
+  }}catch(err){
+    res.status(500).send(err)
   }
 });
 
