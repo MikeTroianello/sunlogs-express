@@ -1,11 +1,5 @@
-const express = require("express");
-const authRoutes = express.Router();
-
 const bcrypt = require("bcryptjs");
 const bcryptSalt = 10;
-
-const auth = require("../middleware/auth");
-const getId = require("../middleware/getId");
 
 const chalk = require("chalk");
 const jwt = require("jsonwebtoken");
@@ -14,9 +8,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Log = require("../models/Log");
 
-authRoutes.post("/signup", async (req, res) => {
+const signup = async (req, res) => {
   try {
-    console.log("REQ.BODY", req.body);
     const { username, password, gender, email, phone } = req.body;
     const usernameLowerCase = username.toLowerCase();
     if (!username || !password) {
@@ -34,8 +27,8 @@ authRoutes.post("/signup", async (req, res) => {
     }
 
     let user = await User.findOne({ usernameLowerCase });
-    console.log("USER", user);
-    if (user !== null) {
+
+    if (user) {
       res.json({ message: "The username already exists" });
       return;
     }
@@ -73,9 +66,9 @@ authRoutes.post("/signup", async (req, res) => {
     console.log("ERROR", err);
     res.status(500).send(err);
   }
-});
+};
 
-authRoutes.post("/login", async (req, res) => {
+const login = async (req, res) => {
   try {
     let { username, password } = req.body;
 
@@ -136,13 +129,13 @@ authRoutes.post("/login", async (req, res) => {
     console.log("Login failed", err);
     res.json({ message: "Something went wrong" });
   }
-});
+};
 
-authRoutes.post("/logout", (req, res, next) => {
+const logout = (req, res, next) => {
   res.status(200).json({ message: "Log out success!" });
-});
+};
 
-authRoutes.get("/loggedin/:day/:year", auth, async (req, res, next) => {
+const loggedIn = async (req, res, next) => {
   let user = await User.findById(req.user.id);
   let results = await Log.find({ creatorId: req.user.id });
   results.map((log) => {
@@ -155,9 +148,9 @@ authRoutes.get("/loggedin/:day/:year", auth, async (req, res, next) => {
   });
   res.json({ user, token: res.token });
   return;
-});
+};
 
-authRoutes.post("/change-info", auth, async (req, res, next) => {
+const changeInfo = async (req, res, next) => {
   try {
     if (req.user.phone !== req.body.userInfo.phone && req.body.userInfo.phone) {
       req.user.phone = req.body.userInfo.phone;
@@ -188,9 +181,9 @@ authRoutes.post("/change-info", auth, async (req, res, next) => {
     console.log("Failed", err);
     res.status(500).json({ message: "Something went wrong" });
   }
-});
+};
 
-authRoutes.post("/delete-user", auth, async (req, res, next) => {
+const deleteUser = async (req, res, next) => {
   try {
     const id = req.user.id;
 
@@ -206,6 +199,13 @@ authRoutes.post("/delete-user", auth, async (req, res, next) => {
     console.log("FAILED", err);
     res.status(500).send(err);
   }
-});
+};
 
-module.exports = authRoutes;
+module.exports = {
+  signup,
+  login,
+  logout,
+  loggedIn,
+  changeInfo,
+  deleteUser,
+};

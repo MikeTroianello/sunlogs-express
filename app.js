@@ -13,16 +13,10 @@ const app = express();
 
 app.use(cors());
 
-// WHEN INTRODUCING USERS DO THIS:
-// INSTALL THESE DEPENDENCIES:  bcryptjs
-// AND UN-COMMENT OUT FOLLOWING LINES:
-
-const session = require("express-session");
-
 // const uri = process.env.MONGODB_URI || "mongodb://localhost/SuPro";
 const uri = "mongodb://localhost/SuPro2";
 
-const live_server = process.env.MONGODB_URI;
+// const live_server = process.env.MONGODB_URI;
 
 mongoose
   .connect(uri, {
@@ -51,18 +45,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(favicon(path.join(__dirname, "public", "sun-favicon.ico")));
 
-// ADD SESSION SETTINGS HERE:
-app.use(
-  session({
-    secret: "some secret goes here",
-    resave: true,
-    saveUninitialized: true,
-  })
-);
-
-// default value for title local
-app.locals.title = "Express - Generated with IronGenerator";
-
 // ADD CORS SETTINGS HERE TO ALLOW CROSS-ORIGIN INTERACTION:
 
 // app.use(
@@ -74,23 +56,14 @@ app.locals.title = "Express - Generated with IronGenerator";
 
 // ROUTES MIDDLEWARE STARTS HERE:
 
-// const index = require('./routes/index');
-// const newLog = require('./routes/newLog');
-const log = require("./routes/log");
-const authRoutes = require("./routes/auth-routes");
+const log = require("./routes/logOLD");
+const authRoutes = require("./routes/authRoutes");
 
-// app.use('/api', index);
-// app.use('/api/newLog', newLog);
 app.use("/api/log", log);
 app.use("/api", authRoutes);
 
 app.get("/", (req, res) => {
   res.json({ msg: "SUCCESS" });
-});
-
-app.use((req, res, next) => {
-  // If no routes match, send them the React HTML.
-  res.sendFile(__dirname + "/public/index.html");
 });
 
 module.exports = app;
