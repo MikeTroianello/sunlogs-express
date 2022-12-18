@@ -1,16 +1,15 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const User = require('../models/User');
-const Log = require('../models/Log');
-const ensureLogin = require('connect-ensure-login');
+const User = require("../models/User");
+const Log = require("../models/Log");
+const ensureLogin = require("connect-ensure-login");
 
-const passport = require('passport');
-const axios = require('axios');
+const axios = require("axios");
 
-router.post('/create', async (req, res, next) => {
+router.post("/create", async (req, res, next) => {
   if (req.isAuthenticated()) {
     const {
       mood,
@@ -22,11 +21,10 @@ router.post('/create', async (req, res, next) => {
       dayOfWeek,
       dayOfYear,
       dayOfMonth,
-      month
+      month,
     } = req.body.info;
 
     // var ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
-   
 
     let latitude;
     let longitude;
@@ -50,7 +48,7 @@ router.post('/create', async (req, res, next) => {
     const weatherStuff = {
       type: weather.data.weather[0].main,
       code: weather.data.weather[0].id,
-      icon: weather.data.weather[0].icon
+      icon: weather.data.weather[0].icon,
     };
 
     countAddress(weatherStuff);
@@ -61,7 +59,7 @@ router.post('/create', async (req, res, next) => {
 
     var now = new Date();
 
-    let a = now.toString().split(' ');
+    let a = now.toString().split(" ");
 
     const log = {
       mood: mood,
@@ -81,17 +79,17 @@ router.post('/create', async (req, res, next) => {
       month: month,
       dayOfMonth: dayOfMonth,
       dayOfYear: dayOfYear,
-      year: year
+      year: year,
     };
 
     Log.create(log)
-      .then(createdLog => {
+      .then((createdLog) => {
         req.user.createdToday = true;
         const infoToSendBack = { createdLog, user: req.user };
 
         res.json(infoToSendBack);
       })
-      .catch(err => {
+      .catch((err) => {
         res.send(err);
       });
   }
