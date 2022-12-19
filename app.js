@@ -56,7 +56,7 @@ app.use(favicon(path.join(__dirname, "public", "sun-favicon.ico")));
 
 // ROUTES MIDDLEWARE STARTS HERE:
 
-const log = require("./routes/logOLD");
+const log = require("./routes/log");
 const authRoutes = require("./routes/authRoutes");
 
 app.use("/api/log", log);
