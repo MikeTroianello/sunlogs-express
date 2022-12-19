@@ -14,7 +14,7 @@ const getAllLogs = async (req, res, nex) => {
 };
 
 // GET See all logs from logged in User
-const getAllMyPosts = async (req, res, next) => {
+const getAllMyPosts = async (req, res) => {
   try {
     const userLogs = await Log.find({ creatorId: req.user.id });
     res.send(userLogs);
@@ -24,38 +24,39 @@ const getAllMyPosts = async (req, res, next) => {
 };
 
 // GET See all logs from one user
-const getAllPostsOfUser = (req, res, next) => {
-  Log.find({ creatorId: req.params.id })
-    .populate("creatorId")
-    .then((userLogs) => {
-      if (userLogs[0].creatorId.deleted) {
-        res.json({ message: "This user has deleted their account" });
-      } else if (userLogs[0].creatorId.hideProfile) {
-        res.json({
-          message: "This user has decided to keep their profile hidden",
-        });
-      } else {
-        const creator = {
-          username: userLogs[0].creatorId.username,
-          gender: userLogs[0].creatorId.gender,
-        };
+const getAllPostsOfUser = async (req, res) => {
+  try {
+    const userLogs = await Log.find({ creatorId: req.params.id }).populate(
+      "creatorId"
+    );
 
-        let logsToSend = userLogs.filter((log) => {
-          log.creatorId = creator;
-          if (log.privateJournal) {
-            log.journal = `${log.creatorId.username} has chosen to keep this log hidden`;
-          }
-          if (log.hideCreator) {
-            console.log("CREATOR IS HIDDEN", log);
-          }
-          return !log.hideCreator;
-        });
-        res.send(logsToSend);
-      }
-    })
-    .catch((err) => {
-      next(err);
-    });
+    if (userLogs[0].creatorId.deleted) {
+      res.json({ message: "This user has deleted their account" });
+    } else if (userLogs[0].creatorId.hideProfile) {
+      res.json({
+        message: "This user has decided to keep their profile hidden",
+      });
+    } else {
+      const creator = {
+        username: userLogs[0].creatorId.username,
+        gender: userLogs[0].creatorId.gender,
+      };
+
+      let logsToSend = userLogs.filter((log) => {
+        log.creatorId = creator;
+        if (log.privateJournal) {
+          log.journal = `${log.creatorId.username} has chosen to keep this log hidden`;
+        }
+        if (log.hideCreator) {
+          console.log("CREATOR IS HIDDEN", log);
+        }
+        return !log.hideCreator;
+      });
+      res.send(logsToSend);
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 //GET See all posts from one area
@@ -69,53 +70,54 @@ const getPostsByCounty = async (req, res) => {
 };
 
 //GET See all posts from a certain date
-const getPostsByDay = (req, res, next) => {
-  Log.find({ dayOfYear: req.params.day })
-    .populate("creatorId")
-    .then((dayLogs) => {
-      let yours = false;
-      let specificDay = dayLogs.filter((log) => {
-        if (req.user && req.user.id == log.creatorId._id) {
-          yours = true;
-          if (log.privateJournal) {
-            log.madePrivate = true;
-          }
-        } else if (log.privateJournal) {
-          log.journal = "This log is set to private";
-        } else if (log.creatorId.deleted) {
-          log.journal = "This user has deleted their account";
-        }
+const getPostsByDay = async (req, res) => {
+  try {
+    const dayLogs = await Log.find({ dayOfYear: req.params.day }).populate(
+      "creatorId"
+    );
 
-        //THIS MAKES THE CREATOR'S NAME HIDDEN TO ALL EXCEPT THE CREATOR
-
-        if (
-          (log.hideCreator == true &&
-            req.user &&
-            req.user.id != log.creatorId.id) ||
-          (log.hideCreator == true && !req.user)
-        ) {
-          let hiddenCreator = {
-            username: "This user has decided to keep their name private",
-            gender: log.creatorId.gender,
-          };
-          log.creatorId = hiddenCreator;
-        } else if (log.creatorId.deleted) {
-          let hiddenCreator = {
-            username: "Deleted",
-            gender: log.creatorId.gender,
-          };
-          log.creatorId = hiddenCreator;
+    let yours = false;
+    let specificDay = dayLogs.filter((log) => {
+      if (req.user && req.user.id == log.creatorId._id) {
+        yours = true;
+        if (log.privateJournal) {
+          log.madePrivate = true;
         }
-        return log.year == req.params.year;
-      });
-      let id;
-      !req.user ? (id = null) : (id = req.user.id);
-      let dayOfYear = { specificDay, yours, id };
-      res.json(dayOfYear);
-    })
-    .catch((err) => {
-      next(err);
+      } else if (log.privateJournal) {
+        log.journal = "This log is set to private";
+      } else if (log.creatorId.deleted) {
+        log.journal = "This user has deleted their account";
+      }
+
+      //THIS MAKES THE CREATOR'S NAME HIDDEN TO ALL EXCEPT THE CREATOR
+
+      if (
+        (log.hideCreator == true &&
+          req.user &&
+          req.user.id != log.creatorId.id) ||
+        (log.hideCreator == true && !req.user)
+      ) {
+        let hiddenCreator = {
+          username: "This user has decided to keep their name private",
+          gender: log.creatorId.gender,
+        };
+        log.creatorId = hiddenCreator;
+      } else if (log.creatorId.deleted) {
+        let hiddenCreator = {
+          username: "Deleted",
+          gender: log.creatorId.gender,
+        };
+        log.creatorId = hiddenCreator;
+      }
+      return log.year == req.params.year;
     });
+    let id;
+    !req.user ? (id = null) : (id = req.user.id);
+    let dayOfYear = { specificDay, yours, id };
+    res.json(dayOfYear);
+  } catch (err) {
+    res.status(400).json(err);
+  }
 };
 
 // GET see individual log
@@ -130,7 +132,7 @@ const getSingleLog = async (req, res) => {
 };
 
 //POST Create a Log
-const createLog = async (req, res, next) => {
+const createLog = async (req, res) => {
   try {
     // const {
     //   mood,
@@ -231,7 +233,7 @@ const createLog = async (req, res, next) => {
   }
 };
 
-const createLogMobile = async (req, res, next) => {
+const createLogMobile = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
       const {
@@ -301,7 +303,7 @@ const createLogMobile = async (req, res, next) => {
       res.json(infoToSendBack);
     }
   } catch (err) {
-    res.status(500).send(err);
+    res.status(500).json(err);
   }
 };
 
