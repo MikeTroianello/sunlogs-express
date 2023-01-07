@@ -1,35 +1,24 @@
-const bcrypt = require("bcryptjs");
+const bcrypt = require('bcryptjs');
 const bcryptSalt = 10;
 
-const chalk = require("chalk");
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
-// require the user model !!!!
-const User = require("../models/User");
-const Log = require("../models/Log");
+const User = require('../models/User');
+const Log = require('../models/Log');
 
 const signup = async (req, res) => {
   try {
     const { username, password, gender, email, phone } = req.body;
     const usernameLowerCase = username.toLowerCase();
     if (!username || !password) {
-      console.log("LINE ONE", username, password);
-      res.status(400).json({ message: "Provide username and password" });
-      return;
-    }
-
-    if (password.length < 6) {
-      res.status(400).json({
-        message:
-          "Please make your password at least 6 characters long for security purposes.",
-      });
+      res.status(400).json({ message: 'Provide username and password' });
       return;
     }
 
     let user = await User.findOne({ usernameLowerCase });
 
     if (user) {
-      res.json({ message: "The username already exists" });
+      res.json({ message: 'The username already exists' });
       return;
     }
 
@@ -47,7 +36,7 @@ const signup = async (req, res) => {
 
     await newUser.save((err) => {
       if (err) {
-        console.log("ERROR", err);
+        console.log('ERROR', err);
         res.json({ message: err });
       }
     });
@@ -63,7 +52,7 @@ const signup = async (req, res) => {
     });
     res.json({ user: newUser, token });
   } catch (err) {
-    console.log("ERROR", err);
+    console.log('ERROR', err);
     res.status(500).send(err);
   }
 };
@@ -77,13 +66,12 @@ const login = async (req, res) => {
     let user = await User.findOne({ usernameLowerCase });
 
     if (!user) {
-      return res.json({ message: "Username not found" });
+      return res.status(400).json({ message: 'Username not found' });
     }
-
     const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
-      return res.json({ message: "Password was incorrect" });
+      return res.status(401).json({ message: 'Password was incorrect' });
     }
 
     const results = await Log.find({ creatorId: user.id });
@@ -95,10 +83,8 @@ const login = async (req, res) => {
       start +
       (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
     var oneDay = 1000 * 60 * 60 * 24;
-    var day = Math.floor(diff / oneDay);
 
-    let a = now.toString().split(" ");
-    let year = Number(a[3]);
+    let a = now.toString().split(' ');
 
     results.map((log) => {
       if (log.dayOfYear == req.body.day && log.year == req.body.year) {
@@ -112,27 +98,18 @@ const login = async (req, res) => {
       },
     };
 
-    jwt.sign(
-      payload,
-      process.env.SECRET,
-      {
-        expiresIn: 3600000,
-      },
-      (err, token) => {
-        if (err) throw err;
-        else {
-          res.json({ token, user });
-        }
-      }
-    );
+    const token = jwt.sign(payload, process.env.SECRET, {
+      expiresIn: 3600000,
+    });
+
+    res.status(200).json({ user, token });
   } catch (err) {
-    console.log("Login failed", err);
-    res.json({ message: "Something went wrong" });
+    res.json({ message: 'Something went wrong' });
   }
 };
 
 const logout = (req, res, next) => {
-  res.status(200).json({ message: "Log out success!" });
+  res.status(200).json({ message: 'Log out success!' });
 };
 
 const loggedIn = async (req, res, next) => {
@@ -176,10 +153,10 @@ const changeInfo = async (req, res, next) => {
     req.user.hideCreatorDefault = req.body.userInfo.hideCreatorDefault;
 
     await User.findByIdAndUpdate(req.user.id, { ...req.user });
-    res.json({ message: "Settings Changed!" });
+    res.json({ message: 'Settings Changed!' });
   } catch (err) {
-    console.log("Failed", err);
-    res.status(500).json({ message: "Something went wrong" });
+    console.log('Failed', err);
+    res.status(500).json({ message: 'Something went wrong' });
   }
 };
 
@@ -188,15 +165,15 @@ const deleteUser = async (req, res, next) => {
     const id = req.user.id;
 
     if (req.body.confirmation === req.user.username) {
-      req.user.name = "Deleted";
+      req.user.name = 'Deleted';
       req.user.deleted = true;
       await User.findByIdAndUpdate(req.user.id, { ...req.user });
-      res.json({ message: "User has been deleted" });
+      res.json({ message: 'User has been deleted' });
     } else {
-      res.json({ message: "You did not type the proper name!" });
+      res.json({ message: 'You did not type the proper name!' });
     }
   } catch (err) {
-    console.log("FAILED", err);
+    console.log('FAILED', err);
     res.status(500).send(err);
   }
 };

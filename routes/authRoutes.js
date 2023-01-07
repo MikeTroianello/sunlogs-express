@@ -1,7 +1,7 @@
-const express = require("express");
+const express = require('express');
 const authRoutes = express.Router();
 
-const auth = require("../middleware/auth");
+const auth = require('../middleware/auth');
 
 const {
   signup,
@@ -10,18 +10,18 @@ const {
   loggedIn,
   changeInfo,
   deleteUser,
-} = require("../controllers/authRoutes");
+} = require('../controllers/authRoutes');
 
-authRoutes.post("/signup", signup);
+authRoutes.post('/signup', signup);
 
-authRoutes.post("/login", login);
+authRoutes.post('/login', login);
 
-authRoutes.post("/logout", logout);
+authRoutes.post('/logout', logout);
 
-authRoutes.get("/loggedin/:day/:year", auth, loggedIn);
+authRoutes.get('/loggedin/:day/:year', auth, loggedIn);
 
-authRoutes.post("/change-info", auth, changeInfo);
+authRoutes.post('/change-info', auth, changeInfo);
 
-authRoutes.post("/delete-user", auth, deleteUser);
+authRoutes.post('/delete-user', auth, deleteUser);
 
 module.exports = authRoutes;
