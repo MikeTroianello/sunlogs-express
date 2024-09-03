@@ -5,32 +5,32 @@ const logSchema = new Schema({
   mood: {
     type: Number,
     min: 1,
-    max: 5
+    max: 5,
   },
   productivity: {
     type: Number,
     min: 1,
-    max: 5
+    max: 5,
   },
   weatherType: {
-    type: String
+    type: String,
   },
   weatherCode: {
-    type: Number
+    type: Number,
   },
   weatherIcon: {
-    type: String
+    type: String,
   },
   externalFactors: {
-    type: String
+    type: String,
   },
   journal: {
-    type: String
+    type: String,
     //Max length will be created on the front end
   },
   privateJournal: {
     type: Boolean,
-    default: false
+    default: false,
   },
   latitude: Number,
   longitude: Number,
@@ -39,14 +39,10 @@ const logSchema = new Schema({
   creatorId: { type: Schema.Types.ObjectId, ref: 'User' },
   hideCreator: {
     type: Boolean,
-    default: false
+    default: false,
   },
-  dayOfWeek: String,
-  month: String,
-  dayOfMonth: Number,
-  dayOfYear: Number,
-  year: Number,
-  timeStamp: { type: Date, default: Date.now }
+  date: { type: Date, required: true, default: Date.now },
+  timeStamp: { type: Date, default: Date.now },
 });
 
 const Log = mongoose.model('Log', logSchema);

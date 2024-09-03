@@ -1,16 +1,17 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const chalk = require('chalk');
 
-module.exports = (req, res, next) => {
+module.exports = (req, _, next) => {
   const token = req.header('x-auth-token');
-  try {
-    const decoded = jwt.verify(token, process.env.SECRET);
-    req.user.id = decoded.user.id; 
-    req.user.you=true
-    next();
-  } catch {
-    req.user={id:null, you:false}
-    next()
-  }
+
+  const decoded = jwt.verify(token, process.env.SECRET);
+  const { user } = decoded || {};
+  const { id } = user || {};
+  /**
+   *  "you" is the logged in user
+   *  maybe change this name to avoid confusion
+   */
+  const you = Boolean(id);
+  req.user = { id, you };
+  next();
 };
